@@ -123,22 +123,24 @@
 
 function llenarTabla(libros) {
     const cuerpo = document.getElementById('cuerpoTabla');
-    cuerpo.innerHTML = ''; 
+    if (!cuerpo) return;
+    
+    cuerpo.innerHTML = ''; // Limpiar antes de llenar
 
     libros.forEach(libro => {
+        // Usamos etiquetas <td> simples sin el botón verde
         const fila = `
             <tr>
                 <td>${libro.id_Libros || libro.id}</td>
-                <td>${libro.titulo}</td>
-                <td>${libro.isbn}</td>
-                <td>${libro.id_Autor || libro.autorId}</td>
-                <td><span class="badge bg-success">Disponible</span></td>
+                <td>${libro.titulo || "Sin título"}</td>
+                <td>${libro.isbn || "N/A"}</td>
+                <td>${libro.id_Autor || "1"}</td>
+                <td><span style="color: green; font-weight: bold;">✓ Disponible</span></td>
             </tr>
         `;
         cuerpo.innerHTML += fila;
     });
 }
-
     async function simularPrestamo(id) {
         const data = {
     LibroId: id,    // Prueba con L mayúscula
