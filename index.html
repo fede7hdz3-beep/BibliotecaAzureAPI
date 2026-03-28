@@ -155,10 +155,10 @@ async function simularPrestamo(libroId) {
 
     async function simularPrestamo(id) {
         const data = {
-            libroId: id,
-            usuarioId: 1, // Asegúrate de que este ID exista en tu tabla usuarios
-            fechaSalida: new Date().toISOString()
-        };
+    LibroId: id,    // Prueba con L mayúscula
+    UsuarioId: 1,   // Prueba con U mayúscula
+    FechaSalida: new Date().toISOString()
+};
 
         try {
             const res = await fetch('https://localhost:7123/api/Prestamos', {
