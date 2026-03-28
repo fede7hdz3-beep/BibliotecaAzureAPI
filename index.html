@@ -104,15 +104,6 @@
     });
 }
 
-async function simularPrestamo(id) {
-    const data = {
-        LibroId: id,
-        EjemplarId: id, // Usamos el ID del libro como referencia
-        UsuarioId: 1,   // Cambia por un ID real de tu tabla 'usuarios'
-        AutorId: 1,     // Cambia por un ID real de tu tabla 'autores'
-        FechaSalida: new Date().toISOString()
-    };
-
     try {
         const res = await fetch('https://localhost:7123/api/Prestamos', {
             method: 'POST',
@@ -130,47 +121,29 @@ async function simularPrestamo(id) {
         console.error(e);
     }
 
+function llenarTabla(libros) {
+    const cuerpo = document.getElementById('cuerpoTabla');
+    if (!cuerpo) return;
+    
+    cuerpo.innerHTML = ''; // Limpiamos la tabla antes de llenar
 
-    try {
-        const respuesta = await fetch(`${API_URL}/Prestamos`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(nuevoPrestamo)
-        });
+    libros.forEach(libro => {
+        // Usamos los nombres de propiedades que ya sabemos que funcionan
+        const idReal = libro.id || libro.id_Libros || libro.Id;
+        const tituloReal = libro.titulo || libro.Titulo || "Sin título";
+        const isbnReal = libro.isbn || libro.ISBN || "N/A";
 
-        if (respuesta.ok) {
-            alert('¡Préstamo registrado con éxito en Azure!');
-        } else {
-            const error = await respuesta.text();
-            alert('Error al prestar: ' + error);
-        }
-    } catch (err) {
-        console.error(err);
-        alert('No se pudo conectar con la API');
-    }
-}
-
-    function llenarTabla(libros) {
-        const cuerpo = document.getElementById('cuerpoTabla');
-        cuerpo.innerHTML = ''; // Limpiar la tabla
-
-        libros.forEach(libro => {
-           const fila = `
+        const fila = `
             <tr>
-                <td>${libro.id || libro.id_Libros}</td>
-                <td>${libro.titulo || libro.Titulo}</td>
-                <td>${libro.isbn || 'N/A'}</td>
-                <td>
-                    <button onclick="simularPrestamo(${libro.id || libro.id_Libros})" 
-                            style="background-color: #27ae60; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer;">
-                        Prestar
-                    </button>
-                </td>
+                <td>${idReal}</td>
+                <td>${tituloReal}</td>
+                <td>${isbnReal}</td>
+                <td><span class="status-badge">Disponible</span></td>
             </tr>
         `;
-            cuerpo.innerHTML += fila;
-        });
-    }
+        cuerpo.innerHTML += fila;
+    });
+}
 
     async function simularPrestamo(id) {
         const data = {
