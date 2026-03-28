@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Biblioteca - Azure API</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 20px; }
+        h1 { color: #2c3e50; text-align: center; }
+        .container { max-width: 1000px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .search-container { text-align: center; margin-bottom: 20px; }
+        input[type="text"] { padding: 10px; width: 300px; border: 1px solid #ddd; border-radius: 4px; }
+        button { padding: 10px 20px; background-color: #3498db; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #2980b9; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+        th { background-color: #f8f9fa; color: #7f8c8d; }
+        tr:hover { background-color: #f1f1f1; }
+        .disponible { color: green; font-weight: bold; }
+        .no-disponible { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📚 Panel de Control de la Biblioteca</h1>
+
+    <div class="search-container">
+        <input type="text" id="terminoBusqueda" placeholder="Buscar por título...">
+        <button onclick="buscarLibros()">🔍 Buscar</button>
+        <button onclick="cargarLibros()" style="background-color: #95a5a6;">🔄 Ver Todos</button>
+    </div>
+
+    <table id="tablaLibros">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>ISBN</th>
+                <th>ID Autor</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTabla">
+            </tbody>
+    </table>
+</div>
+
+<script>
+    // --- IMPORTANTE: Revisa el puerto de tu API ---
+    const API_URL = 'https://localhost:7123/api'; 
+
+    // Función para cargar todos los libros al iniciar
+    async function cargarLibros() {
+        try {
+            const respuesta = await fetch(`${API_URL}/Libros`);
+            const libros = await respuesta.json();
+            llenarTabla(libros);
+        } catch (error) {
+            console.error('Error:', error);
+            alert('No se pudo conectar con la API. ¿Está corriendo?');
+        }
+    }
+
+    // Función para el buscador que programamos
+    async function buscarLibros() {
+        const texto = document.getElementById('terminoBusqueda').value;
+        if (!texto) {
+            alert('Escribe algo para buscar');
+            return;
+        }
+
+        try {
+            // Usamos el endpoint especial que creamos: /api/Libros/buscar/{texto}
+            const respuesta = await fetch(`${API_URL}/Libros/buscar/${texto}`);
+            const libros = await respuesta.json();
+            llenarTabla(libros);
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error en la búsqueda');
+        }
+    }
+
+    // Función para dibujar las filas de la tabla
+   function llenarTabla(libros) {
+    const cuerpo = document.getElementById('cuerpoTabla');
+    cuerpo.innerHTML = ''; 
+
+    libros.forEach(libro => {
+        const fila = `
+            <tr>
+                <td>${libro.id}</td>
+                <td>${libro.titulo}</td>
+                <td>${libro.isbn || 'N/A'}</td>
+                <td>
+                    <button onclick="simularPrestamo(${libro.id})" 
+                            style="background-color: #27ae60; padding: 5px 10px;">
+                        Prestar
+                    </button>
+                </td>
+            </tr>
+        `;
+        cuerpo.innerHTML += fila;
+    });
+}
+
+async function simularPrestamo(libroId) {
+    // Simulamos que el usuario "1" es quien pide el libro
+    const nuevoPrestamo = {
+        libroId: libroId,
+        usuarioId: 1, // Aquí puedes poner un ID real de tu tabla usuarios
+        fechaSalida: new Date().toISOString()
+    };
+
+    try {
+        const respuesta = await fetch(`${API_URL}/Prestamos`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevoPrestamo)
+        });
+
+        if (respuesta.ok) {
+            alert('¡Préstamo registrado con éxito en Azure!');
+        } else {
+            const error = await respuesta.text();
+            alert('Error al prestar: ' + error);
+        }
+    } catch (err) {
+        console.error(err);
+        alert('No se pudo conectar con la API');
+    }
+}
+
+    // Cargar los libros automáticamente al abrir la página
+    cargarLibros();
+</script>
+
+</body>
+</html>
