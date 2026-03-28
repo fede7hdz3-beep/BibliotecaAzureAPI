@@ -136,18 +136,39 @@ async function simularPrestamo(libroId) {
         cuerpo.innerHTML = ''; // Limpiar la tabla
 
         libros.forEach(libro => {
-            const fila = `
-                <tr>
-                    <td>${libro.id}</td>
-                    <td>${libro.titulo}</td>
-                    <td>${libro.isbn || 'N/A'}</td>
-                    <td>${libro.autorId || 'N/A'}</td>
-                    <td><span class="${libro.autorId ? 'disponible' : 'no-disponible'}">${libro.autorId ? 'Prestado' : 'Disponible'}</span></td>
-                </tr>
-            `;
-            // Nota: Usé 'autorId' como ejemplo de estado, ajústalo según tu lógica real de 'disponible'
+           const fila = `
+            <tr>
+                <td>${libro.id || libro.id_Libros}</td>
+                <td>${libro.titulo || libro.Titulo}</td>
+                <td>${libro.isbn || 'N/A'}</td>
+                <td>
+                    <button onclick="simularPrestamo(${libro.id || libro.id_Libros})" 
+                            style="background-color: #27ae60; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer;">
+                        Prestar
+                    </button>
+                </td>
+            </tr>
+        `;
             cuerpo.innerHTML += fila;
         });
+    }
+
+    async function simularPrestamo(id) {
+        const data = {
+            libroId: id,
+            usuarioId: 1, // Asegúrate de que este ID exista en tu tabla usuarios
+            fechaSalida: new Date().toISOString()
+        };
+
+        try {
+            const res = await fetch('https://localhost:7123/api/Prestamos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if(res.ok) alert("¡Préstamo registrado en Azure!");
+            else alert("Error al registrar");
+        } catch(e) { console.error(e); }
     }
 
     // Cargar los libros automáticamente al abrir la página
