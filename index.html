@@ -104,13 +104,14 @@
     });
 }
 
-async function simularPrestamo(libroId) {
-    // Simulamos que el usuario "1" es quien pide el libro
-    const nuevoPrestamo = {
-        libroId: libroId,
-        usuarioId: 1, // Aquí puedes poner un ID real de tu tabla usuarios
-        fechaSalida: new Date().toISOString()
+async function simularPrestamo(id) {
+    const data = {
+        LibroId: id,      
+        UsuarioId: 1,     // Verifica que en tu tabla 'usuarios' exista el ID 1
+        FechaSalida: new Date().toISOString()
     };
+    // ... resto del fetch ...
+
 
     try {
         const respuesta = await fetch(`${API_URL}/Prestamos`, {
