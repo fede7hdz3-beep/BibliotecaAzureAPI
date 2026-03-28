@@ -82,6 +82,7 @@
     }
 
     // Función para dibujar las filas de la tabla
+ HEAD
    function llenarTabla(libros) {
     const cuerpo = document.getElementById('cuerpoTabla');
     cuerpo.innerHTML = ''; 
@@ -130,6 +131,26 @@ async function simularPrestamo(libroId) {
         alert('No se pudo conectar con la API');
     }
 }
+
+    function llenarTabla(libros) {
+        const cuerpo = document.getElementById('cuerpoTabla');
+        cuerpo.innerHTML = ''; // Limpiar la tabla
+
+        libros.forEach(libro => {
+            const fila = `
+                <tr>
+                    <td>${libro.id}</td>
+                    <td>${libro.titulo}</td>
+                    <td>${libro.isbn || 'N/A'}</td>
+                    <td>${libro.autorId || 'N/A'}</td>
+                    <td><span class="${libro.autorId ? 'disponible' : 'no-disponible'}">${libro.autorId ? 'Prestado' : 'Disponible'}</span></td>
+                </tr>
+            `;
+            // Nota: Usé 'autorId' como ejemplo de estado, ajústalo según tu lógica real de 'disponible'
+            cuerpo.innerHTML += fila;
+        });
+    }
+f6ec17cc6c6c8cbf7bfccb12eb49464e627c0dde
 
     // Cargar los libros automáticamente al abrir la página
     cargarLibros();
