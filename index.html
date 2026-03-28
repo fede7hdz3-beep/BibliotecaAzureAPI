@@ -47,120 +47,67 @@
 </div>
 
 <script>
-    // --- IMPORTANTE: Revisa el puerto de tu API ---
-    const API_URL = 'https://localhost:7123/api'; 
+    // URL de tu API en Visual Studio (ajusta el puerto si es necesario)
+    const API_URL = 'https://localhost:7123/api/Libros';
 
-    // Función para cargar todos los libros al iniciar
-    async function cargarLibros() {
+    // Función principal que se ejecuta al cargar la página
+    window.onload = async () => {
+        await obtenerLibros();
+    };
+
+    async function obtenerLibros() {
+        const cuerpo = document.getElementById('cuerpoTabla');
         try {
-            const respuesta = await fetch(`${API_URL}/Libros`);
+            const respuesta = await fetch(API_URL);
+            if (!respuesta.ok) throw new Error("Error en la API");
+            
             const libros = await respuesta.json();
+            console.log("Libros recibidos:", libros);
+            
             llenarTabla(libros);
         } catch (error) {
-            console.error('Error:', error);
-            alert('No se pudo conectar con la API. ¿Está corriendo?');
+            console.error("Error al conectar con Azure:", error);
+            if(cuerpo) cuerpo.innerHTML = '<tr><td colspan="5" style="color:red">Error al conectar con el servidor. Dale Play en Visual Studio.</td></tr>';
         }
     }
 
-    // Función para el buscador que programamos
-    async function buscarLibros() {
-        const texto = document.getElementById('terminoBusqueda').value;
-        if (!texto) {
-            alert('Escribe algo para buscar');
-            return;
-        }
-
-        try {
-            // Usamos el endpoint especial que creamos: /api/Libros/buscar/{texto}
-            const respuesta = await fetch(`${API_URL}/Libros/buscar/${texto}`);
-            const libros = await respuesta.json();
-            llenarTabla(libros);
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error en la búsqueda');
-        }
-    }
-
-    // Función para dibujar las filas de la tabla
-   function llenarTabla(libros) {
-    const cuerpo = document.getElementById('cuerpoTabla');
-    cuerpo.innerHTML = ''; 
-
-    libros.forEach(libro => {
-        const fila = `
-            <tr>
-                <td>${libro.id}</td>
-                <td>${libro.titulo}</td>
-                <td>${libro.isbn || 'N/A'}</td>
-                <td>
-                    <button onclick="simularPrestamo(${libro.id})" 
-                            style="background-color: #27ae60; padding: 5px 10px;">
-                        Prestar
-                    </button>
-                </td>
-            </tr>
-        `;
-        cuerpo.innerHTML += fila;
-    });
-}
-
-    try {
-        const res = await fetch('https://localhost:7123/api/Prestamos', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
+    function llenarTabla(libros) {
+        const cuerpo = document.getElementById('cuerpoTabla');
+        if (!cuerpo) return;
         
-        if(res.ok) alert("¡Préstamo registrado con éxito en Azure!");
-        else {
-            const error = await res.text();
-            console.log("Error detallado:", error);
-            alert("Error al registrar. Revisa la consola.");
-        }
-    } catch(e) {
-        console.error(e);
+        cuerpo.innerHTML = ''; 
+
+        libros.forEach(libro => {
+            // Mapeo flexible de nombres de columnas
+            const id = libro.id_Libros || libro.id || "0";
+            const titulo = libro.titulo || "Sin título";
+            const isbn = libro.isbn || "N/A";
+            const autor = libro.id_Autor || libro.autorId || "1";
+
+            const fila = `
+                <tr>
+                    <td>${id}</td>
+                    <td>${titulo}</td>
+                    <td>${isbn}</td>
+                    <td>${autor}</td>
+                    <td><b style="color: #28a745;">✓ Disponible</b></td>
+                </tr>
+            `;
+            cuerpo.innerHTML += fila;
+        });
     }
 
-function llenarTabla(libros) {
-    const cuerpo = document.getElementById('cuerpoTabla');
-    if (!cuerpo) return;
-    
-    cuerpo.innerHTML = ''; // Limpiar antes de llenar
-
-    libros.forEach(libro => {
-        // Usamos etiquetas <td> simples sin el botón verde
-        const fila = `
-            <tr>
-                <td>${libro.id_Libros || libro.id}</td>
-                <td>${libro.titulo || "Sin título"}</td>
-                <td>${libro.isbn || "N/A"}</td>
-                <td>${libro.id_Autor || "1"}</td>
-                <td><span style="color: green; font-weight: bold;">✓ Disponible</span></td>
-            </tr>
-        `;
-        cuerpo.innerHTML += fila;
-    });
-}
-    async function simularPrestamo(id) {
-        const data = {
-    LibroId: id,    // Prueba con L mayúscula
-    UsuarioId: 1,   // Prueba con U mayúscula
-    FechaSalida: new Date().toISOString()
-};
-
+    // Función de búsqueda (opcional)
+    async function buscarLibro() {
+        const query = document.getElementById('buscarInput').value;
+        if (!query) return obtenerLibros();
+        
         try {
-            const res = await fetch('https://localhost:7123/api/Prestamos', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            if(res.ok) alert("¡Préstamo registrado en Azure!");
-            else alert("Error al registrar");
-        } catch(e) { console.error(e); }
+            const res = await fetch(`${API_URL}/buscar?titulo=${query}`);
+            const resultados = await res.json();
+            llenarTabla(resultados);
+        } catch (e) { console.error(e); }
     }
-
-    // Cargar los libros automáticamente al abrir la página
-    cargarLibros();
 </script>
 
 </body>
