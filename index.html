@@ -123,22 +123,16 @@
 
 function llenarTabla(libros) {
     const cuerpo = document.getElementById('cuerpoTabla');
-    if (!cuerpo) return;
-    
-    cuerpo.innerHTML = ''; // Limpiamos la tabla antes de llenar
+    cuerpo.innerHTML = ''; 
 
     libros.forEach(libro => {
-        // Usamos los nombres de propiedades que ya sabemos que funcionan
-        const idReal = libro.id || libro.id_Libros || libro.Id;
-        const tituloReal = libro.titulo || libro.Titulo || "Sin título";
-        const isbnReal = libro.isbn || libro.ISBN || "N/A";
-
         const fila = `
             <tr>
-                <td>${idReal}</td>
-                <td>${tituloReal}</td>
-                <td>${isbnReal}</td>
-                <td><span class="status-badge">Disponible</span></td>
+                <td>${libro.id_Libros || libro.id}</td>
+                <td>${libro.titulo}</td>
+                <td>${libro.isbn}</td>
+                <td>${libro.id_Autor || libro.autorId}</td>
+                <td><span class="badge bg-success">Disponible</span></td>
             </tr>
         `;
         cuerpo.innerHTML += fila;
