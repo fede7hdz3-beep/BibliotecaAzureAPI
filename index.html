@@ -107,17 +107,28 @@
 async function simularPrestamo(id) {
     const data = {
         LibroId: id,
-        UsuarioId: 1, // Asegúrate de que este usuario exista en Azure
-        
-        // Mandamos el mismo ID a todas las columnas que Azure exige
-        // para que no marquen error de "no default value"
-        EjemplarId: id, 
-        AutorId: 1, // O cualquier ID de autor que tengas registrado
-        
+        EjemplarId: id, // Usamos el ID del libro como referencia
+        UsuarioId: 1,   // Cambia por un ID real de tu tabla 'usuarios'
+        AutorId: 1,     // Cambia por un ID real de tu tabla 'autores'
         FechaSalida: new Date().toISOString()
     };
 
-    // ... resto del fetch ...
+    try {
+        const res = await fetch('https://localhost:7123/api/Prestamos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        if(res.ok) alert("¡Préstamo registrado con éxito en Azure!");
+        else {
+            const error = await res.text();
+            console.log("Error detallado:", error);
+            alert("Error al registrar. Revisa la consola.");
+        }
+    } catch(e) {
+        console.error(e);
+    }
 
 
     try {
